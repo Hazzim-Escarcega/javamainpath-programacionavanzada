@@ -11,7 +11,7 @@ public class ThreadLifeCycle {
                 }catch (InterruptedException e ){
                     e.printStackTrace();
                 }
-                System.out.println("Action: I'm walking ThreadName: "+Thread.currentThread().getName()+" Thread state: "+Thread.currentThread().getState());
+                System.out.println("Action: I'm walking ...My isAlive state is: "+Thread.currentThread().isAlive());
             }
         }
     }
@@ -31,26 +31,19 @@ public class ThreadLifeCycle {
     }
         public static void main(String[] args){
             Thread walkThread = new Thread(new Walk(), "Walk thread");
-            Thread gumThread = new Thread(new ChewGum(),"Chew thread");
-            System.out.println("Walk Thread state: "+walkThread.getState());
-            System.out.println("Main Thread state: "+Thread.currentThread().getState());
+    System.out.println("IsAlive state of walkThread after init " +walkThread.isAlive());
 
-            try{
-                walkThread.start();
-                System.out.println("Walk Thread state: "+walkThread.getState());
-                System.out.println("Main Thread state: "+Thread.currentThread().getState());
+    try{
+        walkThread.start();
+        System.out.println("IsAlive state of walkThread after start " +walkThread.isAlive());
+        walkThread.join(5000);
+        System.out.println("IsAlive state of walkThread after join " +walkThread.isAlive());
+        Thread.sleep(10000);
+        System.out.println("IsAlive state of walkThread at the end " +walkThread.isAlive());
 
-                Thread.sleep(1000);
-                walkThread.join(5000);
-                System.out.println("Walk Thread state after join: "+walkThread.getState());
-                System.out.println("Main Thread state after join: "+Thread.currentThread().getState());
-                System.out.println("Main thread will sleep for 20s");
-                Thread.sleep(20000);
-                System.out.println("Walk Thread state: "+walkThread.getState());
-                System.out.println("Main Thread state: "+Thread.currentThread().getState());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
         }
 }
 
