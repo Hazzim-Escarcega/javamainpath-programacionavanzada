@@ -25,10 +25,14 @@ public class PageDownloader implements Runnable{
                     writer.write(line);
                 }
         System.out.println("Page downloaded to "+fileName);
+                writer.close();
+                Thread.sleep(1000);
             }
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
@@ -52,8 +56,8 @@ public class PageDownloader implements Runnable{
           long start = System.currentTimeMillis();
           downloaderOne.start();
           downloaderTwo.start();
-
-          downloaderOne.join();
+          Thread.sleep(10000);
+          downloaderOne.interrupt();
           downloaderTwo.join();
           long end = System.currentTimeMillis();
 
