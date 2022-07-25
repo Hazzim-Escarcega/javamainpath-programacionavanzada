@@ -11,11 +11,13 @@ public class ThreadMethods {
                 }catch (InterruptedException e ){
                     e.printStackTrace();
                 }
-                System.out.println("I'm walking...");
+                String threadGroup = Thread.currentThread().getThreadGroup().getName();
+                int active = Thread.activeCount();
+                System.out.println("Action: I'm walking...\nMy Group "+threadGroup+"\n Has an active count of "+active);
             }
         }
     }
-    public static class chewGum implements Runnable {
+    public static class ChewGum implements Runnable {
 
         @Override
         public void run() {
@@ -25,44 +27,32 @@ public class ThreadMethods {
                 }catch (InterruptedException e ){
                     e.printStackTrace();
                 }
-                System.out.println("I'm chewing gum...");
+                String threadGroup = Thread.currentThread().getThreadGroup().getName();
+                int active = Thread.activeCount();
+                System.out.println("Action: I'm chewing gum...\nMy Group "+threadGroup+"\n Has an active count of "+active);
             }
         }
     }
 
   public static void main(String[] args) {
-    Thread walkThread = new Thread(new Walk());
-      Thread chewThread = new Thread(new chewGum());
+    ThreadGroup groupOne = new ThreadGroup("GroupOne");
+      ThreadGroup groupTwo = new ThreadGroup("GroupTwo");
 
+      Thread walkThreadOne = new Thread(groupOne, new Walk());
+      Thread walkThreadTwo = new Thread(groupTwo, new Walk());
+      Thread walkThreadThree = new Thread(groupTwo, new Walk());
 
-      walkThread.setPriority(9);
-      chewThread.setPriority(2);
+      Thread chewThreadOne = new Thread(groupOne, new ChewGum());
+      Thread chewThreadTwo = new Thread(groupTwo, new ChewGum());
 
-      System.out.println("\n walkThread priority: "+ walkThread.getPriority());
-      System.out.println("chewThread priority: "+ chewThread.getPriority());
-      System.out.println("Main Thread priority: "+ Thread.currentThread().getPriority());
+      walkThreadOne.start();
+      walkThreadTwo.start();
+      walkThreadThree.start();
+      chewThreadOne.start();
+      chewThreadTwo.start();
 
-      walkThread.start();
-      chewThread.start();
-
-      System.out.println("\n walkThread ID: "+ walkThread.getId());
-      System.out.println("chewThread ID: "+ chewThread.getId());
-      System.out.println("Main Thread ID: "+ Thread.currentThread().getId());
-
-      System.out.println("\n walkThread Name: "+ walkThread.getName());
-      System.out.println("chewThread Name: "+ chewThread.getName());
-      System.out.println("Main Thread Name: "+ Thread.currentThread().getName());
-
-      System.out.println("\n walkThread Thread group: "+ walkThread.getThreadGroup());
-      System.out.println("chewThread Thread group: "+ chewThread.getThreadGroup());
-      System.out.println("Main Thread Thread group: "+ Thread.currentThread().getThreadGroup());
-
-      System.out.println("\n walkThread priority: "+ walkThread.getPriority());
-      System.out.println("chewThread priority: "+ chewThread.getPriority());
-      System.out.println("Main Thread priority: "+ Thread.currentThread().getPriority());
-
-    System.out.println("Active threads: "+Thread.activeCount());
-
-    System.out.println("\n\n");
+    System.out.println("Active threads for main "+Thread.activeCount());
+      System.out.println("Active threads for G1 "+groupOne.activeCount());
+      System.out.println("Active threads for G2 "+groupTwo.activeCount());
   }
 }
