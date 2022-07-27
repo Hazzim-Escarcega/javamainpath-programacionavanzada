@@ -10,16 +10,16 @@ public class Employee {
     private long id;
     private String firstName;
     private String lastName;
-    private String emailID;
+    private String emailid;
 
     public Employee() {
     }
 
-    public Employee(long id, String firstName, String lastName, String emailID) {
+    public Employee(long id, String firstName, String lastName, String emailid) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.emailID = emailID;
+        this.emailid = emailid;
     }
 
     @Id
@@ -49,15 +49,15 @@ public class Employee {
 
     @Column(name = "email_address", nullable = false)
     public String getEmailId() {
-        return emailID;
+        return emailid;
     }
     public void setEmailId(String emailID) {
-        this.emailID = emailID;
+        this.emailid = emailID;
     }
 
     @Override
     public String toString() {
-        return "Employee [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", emailId=" + emailID
+        return "Employee [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", emailId=" + emailid
                 + "]";
     }
 }
