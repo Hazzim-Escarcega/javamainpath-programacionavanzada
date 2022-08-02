@@ -18,14 +18,14 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web:2.7.0'
 	implementation 'com.microsoft.sqlserver:mssql-jdbc:10.2.1.jre17'
     implementation 'javax.validation:validation-api:2.0.1.Final'
-	implementation 'junit:junit:4.13.1'
-	implementation 'junit:junit:4.13.1'
+	implementation 'junit:junit:4.13.2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.0'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
 jacoco {
 	toolVersion = "0.8.5"
 	reportsDir = file("$buildDir/jacoco")
