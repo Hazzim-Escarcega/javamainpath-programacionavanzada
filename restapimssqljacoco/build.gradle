@@ -25,14 +25,26 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
-jacoco {
-	toolVersion = "0.8.5"
-	reportsDir = file("$buildDir/jacoco")
-}
 test {
-	finalizedBy jacocoTestReport
+	useJUnitPlatform()
+	finalizedBy jacocoTestReport  //run right after ./gradlew clean build
 }
-jacocoTestReport {
+jacocoTestReport{                 //configuration for report formats.
 	dependsOn test
+	reports {
+		xml.enabled true
+		csv.enabled true
+		html.enabled true
+	}
+	finalizedBy jacocoTestCoverageVerification  //run right after jacocoTestReport
+}
+jacocoTestCoverageVerification {   //Verifies the code coverage rule if enabled.
+	violationRules {
+		rule {
+			enabled = true
+			limit {
+				minimum = 0.05
+			}
+		}
+	}
 }
