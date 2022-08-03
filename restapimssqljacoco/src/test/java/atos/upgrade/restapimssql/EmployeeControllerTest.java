@@ -22,7 +22,9 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = EmployeeController.class)
@@ -95,6 +97,26 @@ public class EmployeeControllerTest{
         System.out.println("Expected http response: 200\nActual http response: "+httpResponse);
         Assertions.assertEquals(expectedReturn, jsonInput);
         System.out.println("Expected JSON content: "+expectedReturn+"\nActual JSON content"+jsonInput);
+
+    }
+    @Test
+    public void deleteEmployeeTest() throws Exception {
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("deleted",Boolean.TRUE);
+        Mockito.when(employeeController.deleteEmployee(mockEmployee.getId())).thenReturn(response);
+        Mapper mapper = new Mapper();
+        String jsonInput = mapper.mapToJson(mockEmployee);
+        RequestBuilder rb = MockMvcRequestBuilders.delete("/api/v1/employees/"+mockEmployee.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE).content(jsonInput);
+
+        MvcResult result = mockMvc.perform(rb).andReturn();
+        int httpResponse = result.getResponse().getStatus();
+        String expectedResponse = "{\"deleted\":true}";
+        Assertions.assertEquals(200, httpResponse);
+        System.out.println("Expected http response: 200\nActual http response: "+httpResponse);
+        System.out.println(response.get("deleted"));
+        Assertions.assertEquals(expectedResponse, result.getResponse().getContentAsString());
+
 
     }
 
