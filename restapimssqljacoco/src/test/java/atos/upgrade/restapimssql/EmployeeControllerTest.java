@@ -1,155 +1,102 @@
 package atos.upgrade.restapimssql;
 
+
 import atos.upgrade.restapimssql.controller.EmployeeController;
 import atos.upgrade.restapimssql.model.Employee;
-import atos.upgrade.restapimssql.repository.EmployeeRepository;
-import org.junit.Before;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
-
-@RunWith(SpringRunner.class)
-@WebMvcTest(EmployeeController.class)
+@ExtendWith(SpringExtension.class)
+@WebMvcTest(value = EmployeeController.class)
 public class EmployeeControllerTest{
-    @MockBean
-    private EmployeeRepository employeeRepository;
+
     @Autowired
-    EmployeeController employeeController;
-    MockMvc mvc;
-    WebApplicationContext wac;
+    private MockMvc mockMvc;
 
-    @Before
-    public void before() {
-        MockitoAnnotations.openMocks(EmployeeController.class);
-        this.mvc = MockMvcBuilders.webAppContextSetup(this.wac).dispatchOptions(true).build();
-    }
-    @BeforeEach
-    void setup() {
-        mvc = standaloneSetup(new EmployeeController())
-                .defaultRequest(get("/")
-                        .contextPath("/api").servletPath("/v1")
-                        .accept(MediaType.APPLICATION_JSON)).build();
-    }
+    @MockBean
+    private EmployeeController employeeController;
+
+    Employee mockEmployee = new Employee(224, "Hazzim", "Escarcega", "mail@mail.com");
+
+    List<Employee> mockEmployeeList = new ArrayList<>();
+
 
     @Test
-    public void getAllEmployees() throws Exception{
-        mvc.perform(get("/api/v1/employees")).andExpect(status().isOk());
-        /*Employee employee1 = new Employee(224, "Hazzim", "Escarcega", "mail@mail.com");
-        Employee employee2 = new Employee(225, "Saul", "Perez", "mail@mail.com");
-        Employee employee3 = new Employee(226, "Rob", "Pacheco", "mail@mail.com");
-        Employee employee4 = new Employee(227, "Ian", "Santillanes", "mail@mail.com");
-        Employee employee5 = new Employee(228, "Santiago", "Morua", "mail@mail.com");
+    public void getAllEmployeesTest() throws Exception {
+        mockEmployeeList.add(mockEmployee);
+        Mockito.when(employeeController.getAllEmployees()).thenReturn(mockEmployeeList);
 
-        List<Employee> employees = new ArrayList<>();
-        employees.add(employee1);
-        employees.add(employee2);
-        employees.add(employee3);
-        employees.add(employee4);
-        employees.add(employee5);
+        RequestBuilder rb = MockMvcRequestBuilders.get("/api/v1/employees")
+                .accept(MediaType.APPLICATION_JSON);
+        MvcResult result = mockMvc.perform(rb).andReturn();
 
-        String uri = "/api/v1/employees";
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri)
-                .accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
-
-        int status = mvcResult.getResponse().getStatus();
-        assertEquals(200, status);
-
-        String content = mvcResult.getResponse().getContentAsString();
-
-        List employeeList = employees;
-        assertTrue(employeeList.size() >= 0);
-        assertEquals(5, employeeList.size());*/
+        String expectedReturn = "[{\"id\":224,\"firstName\":\"Hazzim\",\"lastName\":\"Escarcega\",\"emailId\":\"mail@mail.com\"}]";
+        int httpResponse = result.getResponse().getStatus();
+        Assertions.assertEquals(200, httpResponse);
+        System.out.println("Expected http response: 200\nActual http response: "+httpResponse);
+        JSONAssert.assertEquals(expectedReturn, result.getResponse().getContentAsString(), false);
+        System.out.println("Expected JSON content: "+expectedReturn+"\nActual JSON content"+result.getResponse().getContentAsString());
     }
     @Test
-    public void getEmployeeById() throws Exception{
-        Employee employee1 = new Employee(224, "Hazzim", "Escarcega", "mail@mail.com");
-        Employee employee2 = new Employee(225, "Saul", "Perez", "mail@mail.com");
-        Employee employee3 = new Employee(226, "Rob", "Pacheco", "mail@mail.com");
-        Employee employee4 = new Employee(227, "Ian", "Santillanes", "mail@mail.com");
-        Employee employee5 = new Employee(228, "Santiago", "Morua", "mail@mail.com");
+    public void createEmployeeTest() throws Exception {
+        mockEmployeeList.add(mockEmployee);
+        Mockito.when(employeeController.createEmployee(mockEmployee)).thenReturn(mockEmployee);
+        Mapper mapper = new Mapper();
+        String jsonInput = mapper.mapToJson(mockEmployee);
+        System.out.println(jsonInput);
+        RequestBuilder rb = MockMvcRequestBuilders.post("/api/v1/employees")
+                .contentType(MediaType.APPLICATION_JSON_VALUE).content(jsonInput);
 
-        List<Employee> employees = new ArrayList<>();
-        employees.add(employee1);
-        employees.add(employee2);
-        employees.add(employee3);
-        employees.add(employee4);
-        employees.add(employee5);
+        MvcResult result = mockMvc.perform(rb).andReturn();
 
-        String uri = "/api/v1/employees";
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri, employee1)
-                .accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
+        String expectedReturn = "{\"id\":224,\"firstName\":\"Hazzim\",\"lastName\":\"Escarcega\",\"emailId\":\"mail@mail.com\"}";
+        System.out.println(expectedReturn +"\n"+ result.getResponse());
+        int httpResponse = result.getResponse().getStatus();
+        Assertions.assertEquals(200, httpResponse);
+        System.out.println("Expected http response: 200\nActual http response: "+httpResponse);
+        Assertions.assertEquals(expectedReturn, jsonInput);
+        System.out.println("Expected JSON content: "+expectedReturn+"\nActual JSON content"+jsonInput);
 
-        int status = mvcResult.getResponse().getStatus();
-        assertEquals(200, status);
-
-        String content = mvcResult.getResponse().getContentAsString();
-
-        List employeeList = employees;
-        assertTrue(employeeList.size() > 0);
-        assertEquals(5, employeeList.size());
-    }
-
-    @Test
-    public void createEmployee() throws Exception {
-       /* String uri = "/api/v1/employees";
-        Employee employee = new Employee();
-        employee.setId(75);
-        employee.setFirstName("Hazzim");
-        employee.setLastName("Escarcega");
-        employee.setEmailId("mail@mail.com");
-
-        String inputJson = super.mapToJson(employee);
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri)
-                .contentType(MediaType.APPLICATION_JSON_VALUE).content(inputJson)).andReturn();
-
-        int status = mvcResult.getResponse().getStatus();
-        assertEquals(200, status );
     }
     @Test
-    public void updateEmployee() throws Exception {
-        String uri = "/api/v1//employees/{id}";
-        Employee employee = new Employee(123, "Hazzim", "Escarcega", "mail@mail.com");
+    public void updateEmployeeTest() throws Exception {
+        ResponseEntity<Employee> response = new ResponseEntity<>(HttpStatus.OK);
+        mockEmployee.setFirstName("Pedro");
+        Mockito.when(employeeController.updateEmployee(mockEmployee.getId(), mockEmployee)).thenReturn(response);
+        Mapper mapper = new Mapper();
+        String jsonInput = mapper.mapToJson(mockEmployee);
+        RequestBuilder rb = MockMvcRequestBuilders.put("/api/v1/employees/"+mockEmployee.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE).content(jsonInput);
 
-        String inputJson = super.mapToJson(employee);
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put(uri, employee.getId() )
-                .contentType(MediaType.APPLICATION_JSON_VALUE).content(inputJson)).andReturn();
-        //Esperando 404 por que no existe el usuario
-        int status = mvcResult.getResponse().getStatus();
-        assertEquals(404, status );*/
-    }
-    @Test
-    @DisplayName("Delete user")
-    public void deleteUsersByIdTest() throws Exception {
-        /*String uri = "/api/v1//employees/{id}";
-        Employee employee = new Employee(222, "Hazzim", "Escarcega", "mail@mail.com");
-        String inputJson = super.mapToJson(employee);
-        System.out.println("Deleting record: "+employee.toString());
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete(uri, employee.getId() )
-                .contentType(MediaType.APPLICATION_JSON_VALUE).content(inputJson)).andReturn();
-        //Esperando 404 por que no existe el usuario
-        int status = mvcResult.getResponse().getStatus();
-        assertEquals(404, status );*/
+        MvcResult result = mockMvc.perform(rb).andReturn();
+
+        String expectedReturn = "{\"id\":224,\"firstName\":\"Pedro\",\"lastName\":\"Escarcega\",\"emailId\":\"mail@mail.com\"}";
+        System.out.println(expectedReturn +"\n"+ result.getResponse());
+        int httpResponse = result.getResponse().getStatus();
+        Assertions.assertEquals(response.getStatusCodeValue(), httpResponse);
+        System.out.println("Expected http response: 200\nActual http response: "+httpResponse);
+        Assertions.assertEquals(expectedReturn, jsonInput);
+        System.out.println("Expected JSON content: "+expectedReturn+"\nActual JSON content"+jsonInput);
 
     }
+
+
 }
