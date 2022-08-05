@@ -3,7 +3,6 @@ package atos.upgrade.restapimssql;
 
 import atos.upgrade.restapimssql.controller.EmployeeController;
 import atos.upgrade.restapimssql.model.Employee;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,6 +54,22 @@ public class EmployeeControllerTest{
         Assertions.assertEquals(200, httpResponse);
         System.out.println("Expected http response: 200\nActual http response: "+httpResponse);
         JSONAssert.assertEquals(expectedReturn, result.getResponse().getContentAsString(), false);
+        System.out.println("Expected JSON content: "+expectedReturn+"\nActual JSON content"+result.getResponse().getContentAsString());
+    }
+    @Test
+    public void getEmployeeByIdTest() throws Exception {
+        ResponseEntity<Employee> response = new ResponseEntity<>(mockEmployee, HttpStatus.OK);
+
+        Mockito.when(employeeController.getEmployeeById(mockEmployee.getId())).thenReturn(response);
+        RequestBuilder rb = MockMvcRequestBuilders.get("/api/v1/employees/"+mockEmployee.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE);
+        MvcResult result = mockMvc.perform(rb).andReturn();
+
+        String expectedReturn = "{\"id\":224,\"firstName\":\"Hazzim\",\"lastName\":\"Escarcega\",\"emailId\":\"mail@mail.com\"}";
+        int httpResponse = result.getResponse().getStatus();
+        Assertions.assertEquals(response.getStatusCodeValue(), httpResponse);
+        System.out.println("Expected http response: 200\nActual http response: "+httpResponse);
+        Assertions.assertEquals(expectedReturn, result.getResponse().getContentAsString());
         System.out.println("Expected JSON content: "+expectedReturn+"\nActual JSON content"+result.getResponse().getContentAsString());
     }
     @Test
